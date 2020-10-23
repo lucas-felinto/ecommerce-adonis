@@ -8,7 +8,7 @@ class CouponOrderSchema extends Schema {
     this.create('coupon_order', (table) => {
       table.increments();
       table.integer('coupon_id').unsigned();
-      table.foreign('coupon_id').references('id').inTable('coupons').onDelete('cascade');
+      table.foreign('coupon_id').references('id').inTable('coupon').onDelete('cascade');
       table.integer('order_id').unsigned();
       table.foreign('order_id').references('id').inTable('order').onDelete('cascade');
       table.decimal('discount', 12, 2).defaultTo(0.0);
@@ -17,7 +17,7 @@ class CouponOrderSchema extends Schema {
   }
 
   down () {
-    this.drop('coupon_orders');
+    this.drop('coupon_order');
   }
 }
 
