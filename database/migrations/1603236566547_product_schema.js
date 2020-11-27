@@ -27,7 +27,7 @@ class ProductSchema extends Schema {
       table.integer('product_id').unsigned();
       table.foreign('product_id').references('id').inTable('product').onDelete('cascade');
       table.integer('category_id').unsigned();
-      table.foreign('category_id').references('id').inTable('categories').onDelete('cascade');
+      table.foreign('category_id').references('id').inTable('categorie').onDelete('cascade');
     });
   }
 
