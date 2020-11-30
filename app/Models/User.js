@@ -7,6 +7,18 @@ const Model = use('Model');
 const Hash = use('Hash');
 
 class User extends Model {
+  tokens () {
+    return this.hasMany('App/Models/Token');
+  }
+
+  image () {
+    return this.belongsTo('App/Models/Image');
+  }
+
+  coupons () {
+    return this.belongsToMany('App/Models/Coupon');
+  }
+  
   static boot () {
     super.boot();
 
@@ -38,9 +50,6 @@ class User extends Model {
    *
    * @return {Object}
    */
-  tokens () {
-    return this.hasMany('App/Models/Token');
-  }
 }
 
 module.exports = User;
