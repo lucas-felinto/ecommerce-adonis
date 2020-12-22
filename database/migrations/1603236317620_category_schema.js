@@ -5,7 +5,7 @@ const Schema = use('Schema');
 
 class CategorySchema extends Schema {
   up () {
-    this.create('categorie', (table) => {
+    this.create('category', (table) => {
       table.increments();
       table.string('title', 100);
       table.string('description', 255);
@@ -16,7 +16,7 @@ class CategorySchema extends Schema {
   }
 
   down () {
-    this.drop('categorie');
+    this.drop('category');
   }
 }
 
