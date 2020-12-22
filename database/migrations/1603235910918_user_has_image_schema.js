@@ -12,7 +12,7 @@ class UserImageSchema extends Schema {
   }
 
   down () {
-    this.table('user_images', (table) => {
+    this.table('user', (table) => {
       // reverse alternations
       table.dropForeign('image_id');
     });
