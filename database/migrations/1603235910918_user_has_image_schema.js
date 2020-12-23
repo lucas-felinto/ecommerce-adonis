@@ -5,13 +5,13 @@ const Schema = use('Schema');
 
 class UserImageSchema extends Schema {
   up () {
-    this.table('user', (table) => {
+    this.table('users', (table) => {
       table.foreign('image_id').references('id').inTable('images').onDelete('cascade');
     });
   }
 
   down () {
-    this.table('user', (table) => {
+    this.table('users', (table) => {
       table.dropForeign('image_id');
     });
   }
