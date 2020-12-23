@@ -8,7 +8,7 @@ class PasswordResetSchema extends Schema {
     this.create('password_reset', (table) => {
       table.increments();
       table.string('email', 254).notNullable();
-      table.foreign('email').references('email').inTable('user').onDelete('cascade');
+      table.foreign('email').references('email').inTable('users').onDelete('cascade');
       table.string('token').notNullable().unique();
       table.dateTime('expires_at');
       table.timestamps();

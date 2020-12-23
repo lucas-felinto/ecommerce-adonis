@@ -8,7 +8,7 @@ class OrderItemSchema extends Schema {
     this.create('order_item', (table) => {
       table.increments();
       table.integer('product_id').unsigned();
-      table.foreign('product_id').references('id').inTable('product').onDelete('cascade');
+      table.foreign('product_id').references('id').inTable('products').onDelete('cascade');
       table.integer('quantity').unsigned();
       table.decimal('subtotal', 12, 2);
       table.integer('order_id').unsigned();

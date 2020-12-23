@@ -6,14 +6,12 @@ const Schema = use('Schema');
 class UserImageSchema extends Schema {
   up () {
     this.table('user', (table) => {
-      // alter table
       table.foreign('image_id').references('id').inTable('images').onDelete('cascade');
     });
   }
 
   down () {
     this.table('user', (table) => {
-      // reverse alternations
       table.dropForeign('image_id');
     });
   }
