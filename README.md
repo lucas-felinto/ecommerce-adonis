@@ -1,28 +1,49 @@
-# Adonis API application
+<h1 align="center">Welcome to Adonis.js e-commerce 👋</h1>
+<p>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-blue.svg?cacheSeconds=2592000" />
+  <a href="http://localhost:3333/documentation" target="_blank">
+    <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
+  </a>
+  <a href="#" target="_blank">
+    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+  </a>
+</p>
 
-This is the boilerplate for creating an API server in AdonisJs, it comes pre-configured with.
+> An complete e-commerce in Adonis.js
 
-1. Bodyparser
-2. Authentication
-3. CORS
-4. Lucid ORM
-5. Migrations and seeds
+### 🏠 [Homepage](http://localhost:3333/)
 
-## Setup
+### ✨ [Demo](http://localhost:3333/)
 
-Use the adonis command to install the blueprint
+## Install
 
-```bash
-adonis new yardstick --api-only
+```sh
+npm install
 ```
 
-or manually clone the repo and then run `npm install`.
+## Usage
 
-
-### Migrations
-
-Run the following command to run startup migrations.
-
-```js
-adonis migration:run
+```sh
+npm run start
 ```
+
+## Run tests
+
+```sh
+npm run test
+```
+
+## Author
+
+👤 **Lucas Felinto**
+
+* Website: https://www.linkedin.com/in/lucas-felinto/
+* Github: [@lucas-felinto](https://github.com/lucas-felinto)
+* LinkedIn: [@lucas-felinto](https://linkedin.com/in/lucas-felinto)
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+***
+_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
