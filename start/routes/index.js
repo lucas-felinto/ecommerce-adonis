@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 /*
 |--------------------------------------------------------------------------
@@ -14,8 +14,15 @@
 */
 
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
-const Route = use('Route')
+const Route = use('Route');
 
 Route.get('/', () => {
-  return { greeting: 'Hello world in JSON' }
-})
+  return { greeting: 'Hello world in JSON' };
+});
+
+// Importar as rotas de autenticação
+require('./auth');
+// Importar as rotas de admin
+require('./admin');
+// Importar as rotas de admin
+require('./client');

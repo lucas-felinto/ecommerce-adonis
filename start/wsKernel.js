@@ -1,6 +1,6 @@
-'use strict'
+'use strict';
 
-const Ws = use('Ws')
+const Ws = use('Ws');
 
 /*
 |--------------------------------------------------------------------------
@@ -11,7 +11,7 @@ const Ws = use('Ws')
 |
 */
 const globalMiddleware = [
-]
+];
 
 
 /*
@@ -31,9 +31,9 @@ const globalMiddleware = [
 | Ws.channel('chat', 'ChatController').middleware(['auth'])
 */
 const namedMiddleware = {
-}
+};
 
 
 Ws
   .registerGlobal(globalMiddleware)
-  .registerNamed(namedMiddleware)
+  .registerNamed(namedMiddleware);
