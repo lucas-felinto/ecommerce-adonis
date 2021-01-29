@@ -28,4 +28,51 @@ const randomString = async (length = 40) => {
   return string;
 };
 
-module.exports = { randomString };
+/**
+ * Move um único arquivo para o caminho especificado, se nenhum for 
+ * então 'public/uploads' será utilizado
+ * @param { FileJar } file
+ * @param { string } path
+ * @return { Object<FileJar> }
+ */
+
+const manage_single_upload = async (file, path = null) => {
+  path = path ? path : Helpers.publicPath('uploads');
+
+  const randomName = await randomString(30);
+  let fileName = `${new Date().getTime()}-${randomName}.${file.subtype}`;
+
+  await file.move(path, {
+    name: fileName
+  });
+
+  return file;
+};
+
+/**
+ * Move os arquivos para o caminho especificado, se nenhum for 
+ * então 'public/uploads' será utilizado
+ * @param { FileJar } fileJar
+ * @param { string } path
+ * @return { Object<FileJar> }
+ */
+
+const manage_multiple_upload = async (fileJar, path = null) => {
+  path = path ? path : Helpers.publicPath('uploads');
+  let sucesses = []; 
+  let errors = [];
+
+  await Promise.all(fileJar.files.map(async file => {
+    let randomName = await randomString(30);
+
+    let fileName = `${new Date().getTime()}-${randomName}.${file.subtype}`;
+
+    await file.move(path, {
+      name: fileName
+    });
+
+    file.moved() ? sucesses.push(file) : errors.push(file.error());
+  }));
+};
+
+module.exports = { randomString, manage_single_upload };
