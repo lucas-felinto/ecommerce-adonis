@@ -75,4 +75,4 @@ const manage_multiple_upload = async (fileJar, path = null) => {
   }));
 };
 
-module.exports = { randomString, manage_single_upload };
+module.exports = { randomString, manage_single_upload, manage_multiple_upload };
