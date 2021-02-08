@@ -1,8 +1,12 @@
-'use strict'
+'use strict';
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
+
+const Coupon = use('App/Models/Coupon');
+const Database = use('Database');
+const Service = use('App/Services/Coupon/CouponService');
 
 /**
  * Resourceful controller for interacting with coupons
@@ -16,20 +20,19 @@ class CouponController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
+   * @param {object} ctx.pagination
    */
-  async index ({ request, response, view }) {
-  }
+  async index ({ request, response, view, pagination }) {
+    const code = request.input('code');
+    const query = Coupon.query();
+    
+    if (code) {
+      query.where('code', 'LIKE', `%${code}%`);
+    }
 
-  /**
-   * Render a form to be used for creating a new coupon.
-   * GET coupons/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+    const coupons = await query.paginate(pagination.page, pagination.limit);
+
+    return response.status(200).send(coupons);
   }
 
   /**
@@ -41,6 +44,67 @@ class CouponController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
+    /**
+     * 1 - Produto - utilizado apenas em produtos especfícos
+     * 2 - Clientes - utilizado apenas em clientes especfícos
+     * 3 - Produtos e Clientes
+     * 4 - Utilizado em qualquer
+     */
+
+    const trx = await Database.beginTransaction();
+
+    var canUseFor = {
+      client: false,
+      product: false
+    };
+
+    try {
+      const couponData = request.only([
+        'code',
+        'discount', 
+        'valid_from', 
+        'valid_until', 
+        'quantity', 
+        'type', 
+        'recursive'
+      ]);
+
+      const { users, products } = request.only(['users', 'products']);
+
+      const coupon = await Coupon.create(couponData, trx);
+
+      const service = new Service(coupon, trx);
+
+      if (users && users.length) {
+        await service.syncUsers(users);
+        canUseFor.client = true;
+      }
+
+      if (products && products.length) {
+        await service.syncProducts(products);
+        canUseFor.product = true;
+      }
+
+      if (canUserFor.product && canUserFor.client) {
+        coupon.can_use_for = 'product_client';
+      } else if (canUserFor.product && !canUserFor.client) {
+        coupon.can_use_for = 'product';
+      } else if (!canUserFor.product && canUserFor.client) {
+        coupon.can_use_for = 'client';
+      } else {
+        coupon.can_use_for = 'all';
+      }
+
+      await coupon.save(trx);
+      await trx.commit();
+
+      return response.status(201).send(coupon);
+    } catch (e) {
+      await trx.rollback();
+      return response.status(400).send({
+        message: e.message
+      });
+    }
   }
 
   /**
@@ -52,19 +116,10 @@ class CouponController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
-  }
+  async show ({ params: { id }, request, response }) {
+    const coupon = await Coupon.findOrFail(id);
 
-  /**
-   * Render a form to update an existing coupon.
-   * GET coupons/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
+    return response.status(200).send(coupon);
   }
 
   /**
@@ -75,7 +130,63 @@ class CouponController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params: { id }, request, response }) {
+    const trx = await Database.beginTransaction();
+
+    var canUseFor = {
+      client: false,
+      product: false
+    };
+    
+    try {
+      const coupon = await Coupon.findOrFail(id);
+
+      const couponData = request.only([
+        'code',
+        'discount', 
+        'valid_from', 
+        'valid_until', 
+        'quantity', 
+        'type', 
+        'recursive'
+      ]);
+
+      const { users, products } = request.only(['users', 'products']);
+      
+      const service = new Service(coupon, trx);
+      
+      if (users && users.length) {
+        await service.syncUsers(users);
+        canUseFor.client = true;
+      }
+      
+      if (products && products.length) {
+        await service.syncProducts(products);
+        canUseFor.product = true;
+      }
+      
+      if (canUserFor.product && canUserFor.client) {
+        coupon.can_use_for = 'product_client';
+      } else if (canUserFor.product && !canUserFor.client) {
+        coupon.can_use_for = 'product';
+      } else if (!canUserFor.product && canUserFor.client) {
+        coupon.can_use_for = 'client';
+      } else {
+        coupon.can_use_for = 'all';
+      }
+      
+      coupon.merge(couponData);
+
+      await coupon.save(trx);
+      await trx.commit();
+
+      return response.status(200).send(coupon);
+    } catch (e) {
+      await trx.rollback();
+      return response.status(400).send({
+        message: e.message
+      });
+    }
   }
 
   /**
@@ -86,8 +197,28 @@ class CouponController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params: { id }, request, response }) {
+    const trx = await Database.beginTransaction();
+    
+    try {
+
+      const coupon = await Coupon.findOrFail(id);
+
+      await coupon.products().detach([], trx);
+      await coupon.orders().detach([], trx);
+      await coupon.users().detach([], trx);
+
+      await coupon.delete(trx);
+      await trx.commit();
+
+      return response.status(204).send({});
+    } catch (e) {
+      await trx.rollback();
+      return response.status(400).send({
+        message: e.message
+      });
+    }
   }
 }
 
-module.exports = CouponController
+module.exports = CouponController;
