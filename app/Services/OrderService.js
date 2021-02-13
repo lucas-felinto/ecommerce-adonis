@@ -1,5 +1,7 @@
 'use strict';
 
+const Database = use('Database');
+
 class OrderService {
   constructor(model, trx = false) {
     this.model = model;
@@ -32,14 +34,71 @@ class OrderService {
     }));
   }
 
-  async syncProducts(products) {
-    if (!Array.isArray(products)) {
+  async canApplyDiscount(coupon) {
+    const now = new Date().getTime();
+    if (now > coupon.valid_from.getTime() || (typeof coupon.valid_until == 'object' && coupon.valid_until.getTime() < now)) {
       return false;
     }
 
-    await this.model.products().sync(products, null, this.trx);
+    const couponProducts = await Database
+      .from('coupon_products')
+      .where('coupon_id', coupon.id)
+      .pluck('product_id');
+
+    const couponClients = await Database
+      .from('coupon_user')
+      .where('coupon_id', coupon.id)
+      .pluck('user_id');
+  
+    // Verifica se não está associado a nenhum cliente ou produto.
+    if (!Array.isArray(couponProducts) && couponProducts.length < 1 && !Array.isArray(couponClients) && couponClients.length < 1) {
+      return true;
+    }
+
+    let isAssociatedToProducts,
+      isAssociatedToClients = false;
+
+    if (!Array.isArray(couponProducts) && couponProducts.length > 0) {
+      isAssociatedToProducts = true;
+    }
+
+    if (!Array.isArray(couponClients) && couponClients.length > 0) {
+      isAssociatedToClients = true;
+    }
+    
+    const productsMatch = await Database
+      .from('order_items')
+      .where('order_id', this.model.id)
+      .whereIn('product_id', couponProducts)
+      .pluck('product_id');
+    
+    if (isAssociatedToClients && isAssociatedToProducts) {
+      const clientMatch = couponClients.find(client => 
+        client === this.model.user_id
+      );
+
+      if (clientMatch && Array.isArray(productsMatch) && productsMatch.length > 0) {
+        return true;
+      }
+    }
+
+    if (isAssociatedToProducts && Array.isArray(productsMatch) && productsMatch.length > 0) {
+      return true;
+    }
+
+    if (isAssociatedToClients && Array.isArray(couponClients) && couponClients.length > 0) {
+      const clientMatch = couponClients.find(client => 
+        client === this.model.user_id
+      );
+
+      if (clientMatch) {
+        return true;
+      }
+    }
+
+    // Se nenhuma das validações forem contempladas, o coupon não estará disponível para uso
+    return false;
   }
 }
-
 
 module.exports = OrderService;
