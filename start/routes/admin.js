@@ -6,16 +6,24 @@ const Route = use('Route');
 Route.group(() => {
   // Categories routes resource
   Route.resource('categories', 'CategoryController').apiOnly();
-  // Products routes resource
+
+  // Coupon routes resource
   Route.resource('coupon', 'CouponController').apiOnly();
-  // Products routes resource
+
+  // Image routes resource
   Route.resource('image', 'ImageController').apiOnly();
-  // Products routes resource
+
+  // Order routes resource
+  Route.post('orders/:id/discount', 'OrderController.applyDiscount');
+  Route.delete('orders/:id', 'OrderController.removeDiscount');
   Route.resource('order', 'OrderController').apiOnly();
+
   // Products routes resource
   Route.resource('products', 'ProductController').apiOnly();
-  // Products routes resource
+
+  // User routes resource
   Route.resource('user', 'UserController').apiOnly();
+
 })
   .prefix('v1/admin')
   .namespace('Admin');
