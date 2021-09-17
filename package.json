@@ -39,7 +39,7 @@
     "eslint": "^7.5.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.0",
-    "set-value": "^3.0.2"
+    "set-value": "^4.0.1"
   },
   "autoload": {
     "App": "./app"
