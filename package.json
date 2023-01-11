@@ -31,7 +31,7 @@
     "@adonisjs/websocket": "^1.0.12",
     "adonis-acl": "^1.1.1",
     "adonis-bumblebee": "^2.2.0",
-    "knex": "^0.21.12",
+    "knex": "^2.4.0",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.7"
   },
